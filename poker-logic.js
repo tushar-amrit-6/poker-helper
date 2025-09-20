@@ -372,7 +372,7 @@ class PokerLogic {
     // Calculate outs (cards that improve the hand)
     calculateOuts(holeCards, communityCards) {
         if (holeCards.length !== 2 || communityCards.length === 0) {
-            return { outs: 0, description: 'Need hole cards and community cards' };
+            return { outs: 0, outCards: [], description: 'Need hole cards and community cards' };
         }
 
         const allCards = [...holeCards, ...communityCards];
@@ -381,16 +381,22 @@ class PokerLogic {
         let outs = 0;
         const outCards = [];
 
+        // Get current hand strength
+        const currentHand = this.evaluateHand(allCards);
+
         // Generate all possible remaining cards
         for (const suit of this.suits) {
             for (const rank of this.ranks) {
                 const cardId = `${rank}${suit}`;
                 if (!usedCards.has(cardId)) {
                     const testCard = this.createCard(rank, suit);
-                    const currentHand = this.evaluateHand(allCards);
-                    const improvedHand = this.evaluateHand([...allCards, testCard]);
+                    const testCards = [...allCards, testCard];
+                    const improvedHand = this.evaluateHand(testCards);
 
-                    if (improvedHand.rank > currentHand.rank) {
+                    // Check if this card improves the hand
+                    const isImprovement = this.isHandImprovement(currentHand, improvedHand);
+
+                    if (isImprovement) {
                         outs++;
                         outCards.push(testCard);
                     }
@@ -403,6 +409,31 @@ class PokerLogic {
             outCards: outCards,
             description: outs > 0 ? `${outs} cards improve your hand` : 'No improving cards'
         };
+    }
+
+    // Check if new hand is better than current hand
+    isHandImprovement(currentHand, newHand) {
+        // If rank is higher, it's definitely better
+        if (newHand.rank > currentHand.rank) {
+            return true;
+        }
+
+        // If same rank, check kickers (for more detailed comparison)
+        if (newHand.rank === currentHand.rank && newHand.rank > 1) {
+            // For pairs, two pair, etc., we might have improved within the same category
+            if (newHand.kickers && currentHand.kickers) {
+                for (let i = 0; i < Math.min(newHand.kickers.length, currentHand.kickers.length); i++) {
+                    if (newHand.kickers[i] > currentHand.kickers[i]) {
+                        return true;
+                    }
+                    if (newHand.kickers[i] < currentHand.kickers[i]) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     // Calculate win probability

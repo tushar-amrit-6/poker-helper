@@ -25,6 +25,7 @@ class PokerApp {
         this.currentHandDisplay = document.getElementById('current-hand');
         this.handExplanationDisplay = document.getElementById('hand-explanation');
         this.outsDisplay = document.getElementById('outs-count');
+        this.outsCardsDisplay = document.getElementById('outs-cards');
         this.probabilityDisplay = document.getElementById('win-probability');
         this.roughOddsDisplay = document.getElementById('rough-odds');
         this.oddsExplanationDisplay = document.getElementById('odds-explanation');
@@ -194,6 +195,9 @@ class PokerApp {
             const outsInfo = this.poker.calculateOuts(holeCards, communityCards);
             this.outsDisplay.textContent = outsInfo.outs.toString();
 
+            // Display specific out cards
+            this.displayOutCards(outsInfo);
+
             const probInfo = this.poker.calculateWinProbability(holeCards, communityCards);
             this.probabilityDisplay.textContent = probInfo.probability > 0 ?
                 `${probInfo.probability.toFixed(1)}%` : '-';
@@ -205,6 +209,7 @@ class PokerApp {
 
         } else {
             this.outsDisplay.textContent = '-';
+            this.outsCardsDisplay.innerHTML = '';
             this.probabilityDisplay.textContent = '-';
             this.roughOddsDisplay.textContent = '-';
             this.oddsExplanationDisplay.textContent = '';
@@ -398,6 +403,66 @@ class PokerApp {
         } else {
             return '❌ Weak hand, no draw. Consider folding to any significant bet.';
         }
+    }
+
+    // Display specific out cards visually
+    displayOutCards(outsInfo) {
+        console.log('displayOutCards called with:', outsInfo); // Debug
+
+        if (!outsInfo.outCards || outsInfo.outCards.length === 0) {
+            this.outsCardsDisplay.innerHTML = '<div style="color: #888;">No improving cards available</div>';
+            return;
+        }
+
+        let html = '<div style="margin-bottom: 5px; color: #90ee90;">Cards that improve your hand:</div>';
+
+        // Simple display first - just show all out cards
+        html += '<div style="margin: 8px 0;">';
+        outsInfo.outCards.forEach(card => {
+            const colorClass = card.color === 'red' ? ' red' : '';
+            html += `<span class="out-card${colorClass}">${card.display}</span>`;
+        });
+        html += '</div>';
+
+        // Also group by type for detailed view
+        const grouped = this.groupOutsByType(outsInfo.outCards);
+        console.log('Grouped outs:', grouped); // Debug
+
+        for (const [type, cards] of Object.entries(grouped)) {
+            html += `<div style="margin: 8px 0; font-size: 11px;"><em>${type} (${cards.length}):</em><br>`;
+            cards.slice(0, 10).forEach(card => { // Limit to first 10 to avoid clutter
+                const colorClass = card.color === 'red' ? ' red' : '';
+                html += `<span class="out-card${colorClass}" style="font-size: 10px;">${card.display}</span>`;
+            });
+            if (cards.length > 10) {
+                html += `<span style="color: #888;">... +${cards.length - 10} more</span>`;
+            }
+            html += '</div>';
+        }
+
+        this.outsCardsDisplay.innerHTML = html;
+    }
+
+    // Group out cards by the type of hand they would make
+    groupOutsByType(outCards) {
+        const holeCards = this.getHoleCards();
+        const communityCards = this.getCommunityCards();
+        const currentCards = [...holeCards, ...communityCards];
+
+        const groups = {};
+
+        outCards.forEach(outCard => {
+            const testCards = [...currentCards, outCard];
+            const handResult = this.poker.evaluateHand(testCards);
+            const handType = handResult.name.split(' (')[0]; // Remove specifics
+
+            if (!groups[handType]) {
+                groups[handType] = [];
+            }
+            groups[handType].push(outCard);
+        });
+
+        return groups;
     }
 }
 
