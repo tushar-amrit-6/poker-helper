@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poker Helper - Hand & Odds Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Poker Helper</h1>
+            <p>Hand & Odds Calculator</p>
+        </header>
+
+        <main>
+            <section class="your-cards">
+                <h2>Your Hole Cards</h2>
+                <div class="hole-cards">
+                    <div class="card-slot" id="hole1" data-position="hole1">
+                        <span class="placeholder">Select Card</span>
+                    </div>
+                    <div class="card-slot" id="hole2" data-position="hole2">
+                        <span class="placeholder">Select Card</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="community-cards">
+                <h2>Community Cards</h2>
+                <div class="board-cards">
+                    <div class="card-slot" id="flop" data-position="flop">
+                        <span class="placeholder">Flop</span>
+                    </div>
+                    <div class="card-slot" id="turn" data-position="turn">
+                        <span class="placeholder">Turn</span>
+                    </div>
+                    <div class="card-slot" id="river" data-position="river">
+                        <span class="placeholder">River</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="analysis">
+                <div class="hand-strength">
+                    <h3>Your Hand</h3>
+                    <div id="current-hand">Select your hole cards to begin</div>
+                    <div id="hand-explanation" class="explanation"></div>
+                </div>
+
+                <div class="probabilities">
+                    <h3>Odds & Analysis</h3>
+                    <div id="odds-display">
+                        <div class="odds-item">
+                            <span class="label">Outs:</span>
+                            <span id="outs-count">-</span>
+                        </div>
+                        <div class="odds-item">
+                            <span class="label">Win Probability:</span>
+                            <span id="win-probability">-</span>
+                        </div>
+                        <div class="odds-item">
+                            <span class="label">Rough Odds:</span>
+                            <span id="rough-odds">-</span>
+                        </div>
+                    </div>
+                    <div id="odds-explanation" class="explanation"></div>
+                </div>
+
+                <div class="decision-helper">
+                    <h3>💡 Beginner's Advice</h3>
+                    <div id="decision-advice">Select cards to get personalized advice</div>
+                </div>
+
+                <div class="warnings">
+                    <h3>Potential Threats</h3>
+                    <div id="threats-display">Select community cards to see potential opponent hands</div>
+                </div>
+
+                <div class="hand-rankings">
+                    <h3>📚 What Beats What?</h3>
+                    <div class="rankings-list">
+                        <div class="ranking-item">
+                            <span class="rank-name">1. High Card</span>
+                            <span class="rank-desc">Just your highest card (weakest)</span>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="rank-name">2. Pair</span>
+                            <span class="rank-desc">Two cards of same rank (e.g., A♠ A♥)</span>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="rank-name">3. Two Pair</span>
+                            <span class="rank-desc">Two different pairs (e.g., A♠ A♥ K♠ K♥)</span>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="rank-name">4. Three of a Kind</span>
+                            <span class="rank-desc">Three cards same rank (e.g., A♠ A♥ A♦)</span>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="rank-name">5. Straight</span>
+                            <span class="rank-desc">5 cards in sequence (e.g., 9-10-J-Q-K)</span>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="rank-name">6. Flush</span>
+                            <span class="rank-desc">5 cards same suit (e.g., all ♠)</span>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="rank-name">7. Full House</span>
+                            <span class="rank-desc">Three of a kind + pair</span>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="rank-name">8. Four of a Kind</span>
+                            <span class="rank-desc">Four cards same rank (e.g., A♠ A♥ A♦ A♣)</span>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="rank-name">9. Straight Flush</span>
+                            <span class="rank-desc">5 cards in sequence, same suit</span>
+                        </div>
+                        <div class="ranking-item">
+                            <span class="rank-name">10. Royal Flush</span>
+                            <span class="rank-desc">10-J-Q-K-A same suit (strongest!)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card-selector" id="card-selector" style="display: none;">
+                <div class="selector-header">
+                    <h3>Select a Card</h3>
+                    <button class="close-selector" id="close-selector">×</button>
+                </div>
+                <div class="suits">
+                    <div class="suit-group">
+                        <h4>♠ Spades</h4>
+                        <div class="cards spades" data-suit="spades"></div>
+                    </div>
+                    <div class="suit-group">
+                        <h4>♥ Hearts</h4>
+                        <div class="cards hearts" data-suit="hearts"></div>
+                    </div>
+                    <div class="suit-group">
+                        <h4>♦ Diamonds</h4>
+                        <div class="cards diamonds" data-suit="diamonds"></div>
+                    </div>
+                    <div class="suit-group">
+                        <h4>♣ Clubs</h4>
+                        <div class="cards clubs" data-suit="clubs"></div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="controls">
+                <button id="clear-all" class="btn-secondary">Clear All Cards</button>
+                <button id="reset-game" class="btn-primary">New Hand</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="poker-logic.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
